@@ -1,3 +1,5 @@
+import edu.princeton.cs.algs4.Stack;
+
 public final class Board  // final: Board is immutable
 {  
 	private int[][] blocks;
@@ -25,10 +27,9 @@ public final class Board  // final: Board is immutable
     	int count = this.moveNumber;
     	for(int i=0;i<this.N;i++)   
     		for(int j=0;j<this.N;j++)     		 			
-    			if(this.blocks[i][j]!=(i*N)+j+1) // if doesnt match increase score
-    				count++;
-    	if(this.blocks[N-1][N-1]==0) // to correct extra calculation done for blank in previous step
-    		count--;
+    			if(this.blocks[i][j]!=(i*N)+j+1&&this.blocks[i][j]!=0) // if doesnt match increase score
+    				count++;                       //dont count blank =0
+    	
     	return count;    		
     }
     public int manhattan()                 // sum of Manhattan distances between blocks and goal
@@ -37,9 +38,8 @@ public final class Board  // final: Board is immutable
     	for(int i=0;i<this.N;i++)   
         for(int j=0;j<this.N;j++) 
         {
-          if(this.blocks[i][j]==0)
-            count = count + N-1-i + N-1-j;
-          else
+          if(this.blocks[i][j]!=0)  //dont count blank =0
+            
           count = count + Math.abs((this.blocks[i][j]-1)/this.N -i)
                         + Math.abs((this.blocks[i][j]-1)/this.N -j);
         }
@@ -68,17 +68,16 @@ public final class Board  // final: Board is immutable
           {
             fi=0;fj=1;si=0;sj=2;
           }
-          if(twinBoard.blocks[0][1]==0)
+          else if(twinBoard.blocks[0][1]==0)
           {
             fi=0;fj=0;si=0;sj=2;
           }
-          if(twinBoard.blocks[0][2]==0)
+          else
           {
             fi=0;fj=0;si=0;sj=1;
-          }
-          int temp = twinBoard.blocks[si][sj];
-          twinBoard.blocks[si][sj]=twinBoard.blocks[fi][fj];
-          twinBoard.blocks[fi][fj]=temp;
+          }         
+          swap(twinBoard.blocks,si,sj,fi,fj);
+          return twinBoard;
     }
     public boolean equals(Object y)        // does this board equal y?
     {
@@ -99,11 +98,65 @@ public final class Board  // final: Board is immutable
     }
     public Iterable<Board> neighbors()     // all neighboring boards
     {
-    
+    	int posOfBlanki=-1,posOfBlankj=-1;
+    	outerloop:
+    	for(int i=0;i<this.N;i++)   
+            for(int j=0;j<this.N;j++)
+              if(this.blocks[i][j]!=0)
+              {
+            	  posOfBlanki=i;
+            	  posOfBlankj=j;
+            	  break outerloop;//exit from both loops another way to do this by using func just for two loop and returning i & j
+              }
+    	
+    	Stack<Board> stacks = new Stack<Board>();
+    	if(posOfBlanki>0)
+    	{
+    		Board b = new Board(this.blocks);
+    		b.moveNumber = this.moveNumber +1;
+    		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki-1,posOfBlankj);
+    		stacks.push(b);
+    	}
+    	if(posOfBlanki<N-1)
+    	{
+    		Board b = new Board(this.blocks);
+    		b.moveNumber = this.moveNumber +1;
+    		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki+1,posOfBlankj);
+    		stacks.push(b);
+    	}
+    	if(posOfBlankj>0)
+    	{
+    		Board b = new Board(this.blocks);
+    		b.moveNumber = this.moveNumber +1;
+    		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki,posOfBlankj-1);
+    		stacks.push(b);
+    	}
+    	if(posOfBlanki<N-1)
+    	{
+    		Board b = new Board(this.blocks);
+    		b.moveNumber = this.moveNumber +1;
+    		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki,posOfBlankj+1);
+    		stacks.push(b);
+    	}
+    	return stacks;    
+    }
+    private void swap(int[][]arr, int i, int j, int a, int b)
+    {
+    	int temp=arr[i][j];
+    	arr[i][j]=arr[a][b];
+    	arr[a][b]=temp;
     }
     public String toString()               // string representation of this board (in the output format specified below)
     {
-     re 
+    	 StringBuilder s = new StringBuilder();
+    	    s.append(N + "\n");
+    	    for (int i = 0; i < N; i++) {
+    	        for (int j = 0; j < N; j++) {
+    	            s.append(String.format("%2d ", this.blocks[i][j]));
+    	        }
+    	        s.append("\n");
+    	    }
+    	    return s.toString();
     }
 
     public static void main(String[] args) // unit tests (not graded)
