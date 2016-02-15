@@ -19,7 +19,7 @@ public class Solver {
 		}
 		@Override
 		public int compareTo(Node that) {
-			return  this.board.hamming()+this.moves-that.board.hamming()-that.moves;
+			return  this.board.manhattan()+this.moves-that.board.manhattan()-that.moves;
 		}
 		
 	}
@@ -44,7 +44,7 @@ public class Solver {
     			}
     		for(Board neighbour:searchNode.board.neighbors())
     		{
-    			if(neighbour==null) System.out.print("Null ne");
+    			//if(searchNode.previousnode!=null&&neighbour.equals(searchNode.previousnode.board)) System.out.print("Equal re");
     			if(searchNode.previousnode==null||!neighbour.equals(searchNode.previousnode.board))
     			{
     				Node n = new Node(neighbour,searchNode,searchNode.moves+1);
