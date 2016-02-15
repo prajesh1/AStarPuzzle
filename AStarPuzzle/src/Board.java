@@ -1,17 +1,14 @@
 import edu.princeton.cs.algs4.Stack;
 
-public final class Board  // final: Board is immutable
+public  class Board  // final: Board is immutable
 {  
 	private int[][] blocks;
 	private int N;
-	private int moveNumber; //how many previous moves
-    public Board(int[][] blocks)           // construct a board from an N-by-N array of blocks
+	public Board(int[][] blocks)           // construct a board from an N-by-N array of blocks
     {
     	if(blocks.length!=blocks[0].length)
     		throw new IllegalArgumentException("N*M matrix not accepted, pls try with N*N");
     	this.N=blocks.length;
-    	this.moveNumber = 0; //Initialization
-    	
     	this.blocks = new int[N][N];
     	for(int i=0;i<this.N;i++)   //makes blocks immutable
     		for(int j=0;j<this.N;j++) // (where blocks[i][j] = block in row i, column j)
@@ -24,7 +21,7 @@ public final class Board  // final: Board is immutable
     }
     public int hamming()                   // number of blocks out of place
     {
-    	int count = this.moveNumber;
+    	int count = 0;
     	for(int i=0;i<this.N;i++)   
     		for(int j=0;j<this.N;j++)     		 			
     			if(this.blocks[i][j]!=(i*N)+j+1&&this.blocks[i][j]!=0) // if doesnt match increase score
@@ -34,14 +31,14 @@ public final class Board  // final: Board is immutable
     }
     public int manhattan()                 // sum of Manhattan distances between blocks and goal
     {
-    	int count = this.moveNumber;       
+    	int count = 0;       
     	for(int i=0;i<this.N;i++)   
         for(int j=0;j<this.N;j++) 
         {
           if(this.blocks[i][j]!=0)  //dont count blank =0
             
           count = count + Math.abs((this.blocks[i][j]-1)/this.N -i)
-                        + Math.abs((this.blocks[i][j]-1)/this.N -j);
+                        + Math.abs((this.blocks[i][j]-1)%this.N -j);
         }
     	return count;
     }
@@ -55,7 +52,7 @@ public final class Board  // final: Board is immutable
             if(i!=N-1||j!=N-1)          
               return false;
           }
-          else if((this.blocks[i][j]-1)%this.N!=i||(this.blocks[i][j]-1)%this.N!=j)
+          else if((this.blocks[i][j]-1)/this.N!=i||(this.blocks[i][j]-1)%this.N!=j)
               return false;              
         }
       return true;      
@@ -66,11 +63,11 @@ public final class Board  // final: Board is immutable
           int fi,fj,si,sj;
           if(twinBoard.blocks[0][0]==0)
           {
-            fi=0;fj=1;si=0;sj=2;
+            fi=0;fj=1;si=1;sj=0;
           }
           else if(twinBoard.blocks[0][1]==0)
           {
-            fi=0;fj=0;si=0;sj=2;
+            fi=0;fj=0;si=1;sj=0;
           }
           else
           {
@@ -83,6 +80,8 @@ public final class Board  // final: Board is immutable
     {
       if(this==y)
         return true;
+      if(y==null)
+    	  return false;
       if(this.getClass()!=y.getClass())
         return false;
       Board that = (Board)y;
@@ -98,11 +97,11 @@ public final class Board  // final: Board is immutable
     }
     public Iterable<Board> neighbors()     // all neighboring boards
     {
-    	int posOfBlanki=-1,posOfBlankj=-1;
+    	int posOfBlanki=0,posOfBlankj=0;
     	outerloop:
     	for(int i=0;i<this.N;i++)   
             for(int j=0;j<this.N;j++)
-              if(this.blocks[i][j]!=0)
+              if(this.blocks[i][j]==0)
               {
             	  posOfBlanki=i;
             	  posOfBlankj=j;
@@ -113,28 +112,24 @@ public final class Board  // final: Board is immutable
     	if(posOfBlanki>0)
     	{
     		Board b = new Board(this.blocks);
-    		b.moveNumber = this.moveNumber +1;
     		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki-1,posOfBlankj);
     		stacks.push(b);
     	}
     	if(posOfBlanki<N-1)
     	{
     		Board b = new Board(this.blocks);
-    		b.moveNumber = this.moveNumber +1;
     		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki+1,posOfBlankj);
     		stacks.push(b);
     	}
     	if(posOfBlankj>0)
     	{
     		Board b = new Board(this.blocks);
-    		b.moveNumber = this.moveNumber +1;
     		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki,posOfBlankj-1);
     		stacks.push(b);
     	}
-    	if(posOfBlanki<N-1)
+    	if(posOfBlankj<N-1)
     	{
     		Board b = new Board(this.blocks);
-    		b.moveNumber = this.moveNumber +1;
     		swap(b.blocks,posOfBlanki,posOfBlankj,posOfBlanki,posOfBlankj+1);
     		stacks.push(b);
     	}
