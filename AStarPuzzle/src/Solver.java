@@ -5,9 +5,9 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
 	private Node finalNode;
-	private boolean solvable;
+	private boolean solvable=true;
 	
-	private class Node
+	private class Node implements Comparable<Node>
 	{
 		Board board;
 		Node previousnode;
@@ -16,6 +16,10 @@ public class Solver {
 			this.board = board;
 			this.previousnode = previousnode;
 			this.moves = moves;
+		}
+		@Override
+		public int compareTo(Node that) {
+			return  this.board.hamming()+this.moves-that.board.hamming()-that.moves;
 		}
 		
 	}
@@ -27,9 +31,9 @@ public class Solver {
     	//dummy code for twin
     	MinPQ<Node> minPQDummy = new MinPQ<Node>();
     	Node nodeDummy = new Node(initial.twin(),null,0);
-    	minPQ.insert(nodeDummy);
+    	minPQDummy.insert(nodeDummy);
     	//dummy code for twin ends
-    	while(true) //ideally the queue will never empty
+    	while(!minPQ.isEmpty()&&!minPQDummy.isEmpty()) //ideally the queue will never empty
     	{
     		Node searchNode = minPQ.delMin();
     		if(searchNode.board.isGoal()) //return in constructor answer reached
@@ -40,7 +44,8 @@ public class Solver {
     			}
     		for(Board neighbour:searchNode.board.neighbors())
     		{
-    			if(!neighbour.equals(searchNode.previousnode.board))
+    			if(neighbour==null) System.out.print("Null ne");
+    			if(searchNode.previousnode==null||!neighbour.equals(searchNode.previousnode.board))
     			{
     				Node n = new Node(neighbour,searchNode,searchNode.moves+1);
     				minPQ.insert(n);
@@ -48,7 +53,7 @@ public class Solver {
     				
     		}
     		
-    		//code for twin dummy
+    		//code for twin dummy 
     		Node searchNodeDummy = minPQDummy.delMin();
     		if(searchNodeDummy.board.isGoal()) //return in constructor answer reached
     			{
@@ -59,13 +64,15 @@ public class Solver {
     			}
     		for(Board dneighbour:searchNodeDummy.board.neighbors())
     		{
-    			if(!dneighbour.equals(searchNodeDummy.previousnode.board))
+    			if(searchNodeDummy.previousnode==null||!dneighbour.equals(searchNodeDummy.previousnode.board))
     			{
     				Node n = new Node(dneighbour,searchNodeDummy,searchNodeDummy.moves+1);
     				minPQDummy.insert(n);
     			}
     				
     		}
+    		//code for twin dummy 
+    		
     	}
     }
     public boolean isSolvable()            // is the initial board solvable?
@@ -78,6 +85,8 @@ public class Solver {
     }
     public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
     {
+    	if(!this.solvable)
+    		return null;
     	Stack<Board> st = new Stack<Board>();
     	Node n = finalNode;    	
     	while(n!=null)
@@ -97,8 +106,7 @@ public class Solver {
             for (int j = 0; j < N; j++)
                 blocks[i][j] = in.readInt();
         Board initial = new Board(blocks);
-        for(Board x:initial.neighbors())
-        	x.toString();
+
         // solve the puzzle
         Solver solver = new Solver(initial);
 
